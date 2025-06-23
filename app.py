@@ -2,7 +2,7 @@ from flask import render_template, Flask, request, send_file, session
 import os
 from InvoiceGenerator.api import Invoice, Item, Client, Provider, Creator
 from InvoiceGenerator.pdf import SimpleInvoice
-import datetime
+import datetime 
 import random
 
 app = Flask(__name__)
@@ -20,7 +20,6 @@ def submit():
         customer_name = request.form.get('customer_name')
         customer_email = request.form.get('customer_email')
         customer_invoice_date = request.form.get('customer_invoice_date')
-        current_date = datetime.datetime.now()
 
         item_names = request.form.getlist('item_name')
         quantities = request.form.getlist('item_quantity')
@@ -30,9 +29,10 @@ def submit():
         provider = Provider("Gowtham's Electronics", address="22, Ritchie Street", city="Chennai", email="curiousgowtham@gmail.com", country="India")
         creator = Creator('Gowtham Madhevasamy')
         invoice = Invoice(client, provider, creator)
-        invoice.currency = 'INR'
+        invoice.currency = 'Rs'
+        invoice.paytype = "Credit Card"
         invoice.number = random.randint(90000000000000, 100000000000000)
-        invoice.date = customer_invoice_date
+        invoice.date = datetime.datetime.strptime(customer_invoice_date, '%Y-%m-%d').date()
 
         subtotal = 0.0
 
@@ -45,11 +45,13 @@ def submit():
         tax = 0.10 * subtotal
         after_taxation = subtotal + tax
         
-        invoice.add_item(Item(0, subtotal, description="TAX"))
+        invoice.add_item(Item(0, subtotal, description="SUBTOTAL"))
         invoice.add_item(Item(0, tax, description="TAX"))
         invoice.add_item(Item(0, after_taxation, description="TOTAL (+10% tax)"))
+        
+        current_date = datetime.datetime.now()
         filename = f'invoice_{current_date.strftime("%Y%m%d_%H%M%S")}.pdf'
-        pdf = SimpleInvoice(invoice)
+        pdf = SimpleInvoice(invoice)    
         pdf.gen(filename, generate_qr_code=False)
 
         session['pdf_filename'] = filename
@@ -59,8 +61,7 @@ def submit():
 
 @app.route('/preview', methods=['GET', 'POST'])
 def preview_file():
-    preview_fileName = session['pdf_filename']
-    return send_file(preview_fileName, as_attachment=False)
+    return send_file(session['pdf_filename'], as_attachment=False)
 
 if __name__ == '__main__':
     app.run(debug=True)
