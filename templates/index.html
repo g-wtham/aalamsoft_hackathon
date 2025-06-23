@@ -1,40 +1,86 @@
 <!--  Gowtham M - VCET -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" href="../static/style.css">
 </head>
+
 <body>
-    <form action="" method="post">
-        <label for="name">Name: <input type="text" name="customer_name" id="name"></label>
-        <label for="email">Email: <input type="email" name="customer_email" id="email"></label>
-        <label for="date">Invoice Date: <input type="date" name="customer_invoice_date" id="date"></label>
-        <div class="items_container">
-        <table class="items_table">
-            <thead>
-                <th>Item Name</th>
-                <th>Quantity</th>
-                <th>Price per unit</th>
-            </thead>
-         
-            <tbody>
-                <tr>
-                <td>
-                    <input type="text" placeholder="Item Name" required>
-                </td>
-                <td>
-                    <input type="number" placeholder="Quantity" required>
-                </td>
-                <td>
-                    <label>Rs. </label><input type="number" placeholder="Price" required>
-                </td>
-                </tr>
-            </tbody>    
-        </table>
+    <form action="/submit" method="post">
+        <div class="user_details">
+            <label for="name">Name: <input type="text" name="customer_name" id="name"></label>
+            <label for="email">Email: <input type="email" name="customer_email" id="email"></label>
+            <label for="date">Invoice Date: <input type="date" name="customer_invoice_date" id="date"></label>
+            <div class="items_container">
+            </div>
+            <table id="items_table">
+                <thead>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Price per unit</th>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" placeholder="Item Name" id="item_name" name="item_name">
+                        </td>
+                        <td>
+                            <input type="number" placeholder="Quantity" id="item_quantity" name="item_quantity">
+                        </td>
+                        <td>
+                            <label>Rs. </label><input type="number" placeholder="Price" id="item_price" name="item_price">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button onclick="addRow()">Add More Items</button>
+            <button onclick="">Preview Invoice</button>
         </div>
-    </form> 
+        <button type="submit">Download Invoice</button>
+    </form>
+<script>
+    function addRow() {
+
+        const table = document.getElementById('items_table');
+        const tbody = table.querySelector('tbody');
+        const newRow = tbody.insertRow();
+
+        const cell1 = newRow.insertCell(0);
+        const itemNameInput = document.createElement("input");
+        itemNameInput.type = "text";
+        itemNameInput.name = "item_name";
+        itemNameInput.placeholder = "Item Name";
+        itemNameInput.required = true;
+        cell1.appendChild(itemNameInput);
+
+        const cell2 = newRow.insertCell(1);
+        const itemQuantityInput = document.createElement("input");
+        itemQuantityInput.type = "number";
+        itemQuantityInput.name = "item_quantity";
+        itemQuantityInput.placeholder = "Quantity";
+        itemQuantityInput.required = true;
+        cell2.appendChild(itemQuantityInput);
+
+        const cell3 = newRow.insertCell(2);
+        const priceLabel = document.createElement("label");
+        priceLabel.textContent = "Rs. ";
+        const itemPriceInput = document.createElement("input");
+        itemPriceInput.type = "number";
+        itemPriceInput.name = "item_price";
+        itemPriceInput.placeholder = "Price";
+        itemPriceInput.required = true;
+        cell3.appendChild(priceLabel);
+        cell3.appendChild(itemPriceInput);
+
+    }
+
+</script>
+
 </body>
+
 </html>
