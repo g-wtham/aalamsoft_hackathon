@@ -39,9 +39,11 @@
                 </tbody>
             </table>
             <button onclick="addRow()">Add More Items</button>
-            <button onclick="">Preview Invoice</button>
         </div>
         <button type="submit">Download Invoice</button>
+    </form>
+    <form action="/preview" method="post">
+        <button type="submit">Preview Invoice</button>
     </form>
 <script>
     function addRow() {

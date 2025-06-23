@@ -1,8 +1,9 @@
-from flask import render_template, Flask, request, send_file
+from flask import render_template, Flask, request, send_file, session
 import os
 from InvoiceGenerator.api import Invoice, Item, Client, Provider, Creator
 from InvoiceGenerator.pdf import SimpleInvoice
 import datetime
+
 
 app = Flask(__name__)
 app.secret_key = '1212121'
@@ -15,31 +16,37 @@ os.environ["INVOICE_LANG"] = "en"
 
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
-    customer_name = request.form.get('customer_name')
-    current_date = datetime.datetime.now()
+    if request.method == 'POST':
+        customer_name = request.form.get('customer_name')
+        current_date = datetime.datetime.now()
 
-    item_names = request.form.getlist('item_name')
-    quantities = request.form.getlist('item_quantity')
-    prices = request.form.getlist('item_price')
+        item_names = request.form.getlist('item_name')
+        quantities = request.form.getlist('item_quantity')
+        prices = request.form.getlist('item_price')
 
-    client = Client(customer_name)
-    provider = Provider("Gowtham's Electronics")
-    creator = Creator('Gowtham Madhevasamy')
-    invoice = Invoice(client, provider, creator)
-    invoice.currency_locale = 'en_IN'
-    
-    for name, qty, price in zip(item_names, quantities, prices):
-        qty = int(qty)
-        price = float(price)
-        invoice.add_item(Item(qty, price, description=name))
+        client = Client(customer_name)
+        provider = Provider("Gowtham's Electronics")
+        creator = Creator('Gowtham Madhevasamy')
+        invoice = Invoice(client, provider, creator)
+        invoice.currency_locale = 'en_IN'
+        
+        for name, qty, price in zip(item_names, quantities, prices):
+            qty = int(qty)
+            price = float(price)
+            invoice.add_item(Item(qty, price, description=name))
 
-    filename = f'invoice_{current_date.strftime("%Y%m%d_%H%M%S")}.pdf'
-    pdf = SimpleInvoice(invoice)
-    pdf.gen(filename, generate_qr_code=False)
+        filename = f'invoice_{current_date.strftime("%Y%m%d_%H%M%S")}.pdf'
+        pdf = SimpleInvoice(invoice)
+        pdf.gen(filename, generate_qr_code=False)
 
-    return send_file(filename, as_attachment=True)
+        session['pdf_filename'] = filename
 
+        return send_file(filename, as_attachment=True)
 
+@app.route('/preview', methods=['GET', 'POST'])
+def preview_file():
+    preview_fileName = session['pdf_filename']
+    return send_file(preview_fileName, as_attachment=False)
 
 if __name__ == '__main__':
     app.run(debug=True)
