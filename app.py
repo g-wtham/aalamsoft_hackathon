@@ -3,7 +3,7 @@ import os
 from InvoiceGenerator.api import Invoice, Item, Client, Provider, Creator
 from InvoiceGenerator.pdf import SimpleInvoice
 import datetime
-
+import random
 
 app = Flask(__name__)
 app.secret_key = '1212121'
@@ -24,17 +24,27 @@ def submit():
         quantities = request.form.getlist('item_quantity')
         prices = request.form.getlist('item_price')
 
-        client = Client(customer_name)
-        provider = Provider("Gowtham's Electronics")
+        client = Client(customer_name, email=customer_email)
+        provider = Provider("Gowtham's Electronics", address="22, Ritchie Street", city="Chennai", email="curiousgowtham@gmail.com", country="India")
         creator = Creator('Gowtham Madhevasamy')
         invoice = Invoice(client, provider, creator)
-        invoice.currency_locale = 'en_IN'
-        
+        invoice.currency = 'INR'
+        invoice.number = random.randint(100000000000000, 900000000000000)
+        invoice.date = current_date.strftime("%Y%m%d_%H%M%S")
+
+        subtotal = 0.0
+
         for name, qty, price in zip(item_names, quantities, prices):
             qty = int(qty)
             price = float(price)
-            invoice.add_item(Item(qty, price, description=name))
-
+            subtotal += qty * price
+            invoice.add_item(Item(qty, price, name))
+            
+        tax = 0.10 * subtotal
+        after_taxation = subtotal + tax
+        
+        invoice.add_item(Item(0, tax, description="TAX"))
+        invoice.add_item(Item(0, after_taxation, description="TOTAL (+10% tax)"))
         filename = f'invoice_{current_date.strftime("%Y%m%d_%H%M%S")}.pdf'
         pdf = SimpleInvoice(invoice)
         pdf.gen(filename, generate_qr_code=False)
@@ -42,6 +52,7 @@ def submit():
         session['pdf_filename'] = filename
 
         return send_file(filename, as_attachment=True)
+
 
 @app.route('/preview', methods=['GET', 'POST'])
 def preview_file():
