@@ -18,6 +18,8 @@ os.environ["INVOICE_LANG"] = "en"
 def submit():
     if request.method == 'POST':
         customer_name = request.form.get('customer_name')
+        customer_email = request.form.get('customer_email')
+        customer_invoice_date = request.form.get('customer_invoice_date')
         current_date = datetime.datetime.now()
 
         item_names = request.form.getlist('item_name')
@@ -29,8 +31,8 @@ def submit():
         creator = Creator('Gowtham Madhevasamy')
         invoice = Invoice(client, provider, creator)
         invoice.currency = 'INR'
-        invoice.number = random.randint(100000000000000, 900000000000000)
-        invoice.date = current_date.strftime("%Y%m%d_%H%M%S")
+        invoice.number = random.randint(90000000000000, 100000000000000)
+        invoice.date = customer_invoice_date
 
         subtotal = 0.0
 
@@ -43,6 +45,7 @@ def submit():
         tax = 0.10 * subtotal
         after_taxation = subtotal + tax
         
+        invoice.add_item(Item(0, subtotal, description="TAX"))
         invoice.add_item(Item(0, tax, description="TAX"))
         invoice.add_item(Item(0, after_taxation, description="TOTAL (+10% tax)"))
         filename = f'invoice_{current_date.strftime("%Y%m%d_%H%M%S")}.pdf'
