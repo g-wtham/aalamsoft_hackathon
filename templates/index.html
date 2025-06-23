@@ -10,13 +10,13 @@
 </head>
 
 <body>
+    <h1>Gowtham Electronics Invoice Generator</h1>
     <form action="/submit" method="post">
         <div class="user_details">
             <label for="name">Name: <input type="text" name="customer_name" id="name"></label>
             <label for="email">Email: <input type="email" name="customer_email" id="email"></label>
             <label for="date">Invoice Date: <input type="date" name="customer_invoice_date" id="date"></label>
             <div class="items_container">
-            </div>
             <table id="items_table">
                 <thead>
                     <th>Item Name</th>
@@ -38,12 +38,13 @@
                     </tr>
                 </tbody>
             </table>
-            <button onclick="addRow()">Add More Items</button>
+            </div>
+            <button class="add_items_btn" onclick="addRow()">Add more items</button>
         </div>
-        <button type="submit">Download Invoice</button>
+        <button class="download_btn" type="submit">Download Invoice</button>
     </form>
     <form action="/preview" method="post">
-        <button type="submit">Generate Invoice</button>
+        <button class="preview_button" type="submit">Generate Invoice Preview</button>
     </form>
 <script>
     function addRow() {
